@@ -1,0 +1,47 @@
+{
+    "name": "vegas/laravel-notification-channel-max",
+    "description": "Max (platform-api.max.ru) notification channel for Laravel",
+    "keywords": [
+        "laravel",
+        "notification",
+        "max",
+        "vegas"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vegas",
+            "email": "info@vegas-dev.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2|^8.0",
+        "illuminate/notifications": "^7.0|^8.0|^9.0|^10.0",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "mockery/mockery": "^1.4",
+        "orchestra/testbench": "^5.0|^6.0|^7.0|^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Vegas\\MaxNotificationChannel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Vegas\\MaxNotificationChannel\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Vegas\\MaxNotificationChannel\\MaxServiceProvider"
+            ]
+        }
+    }
+}
