@@ -26,6 +26,16 @@ class MaxBotClient
 
     public function sendMessage(string $text, $chatId = null, array $payload = []): array
     {
+        return $this->request('POST', '/messages', $text, $chatId, $payload);
+    }
+
+    public function editMessage(string $messageId, string $text, $chatId = null, array $payload = []): array
+    {
+        return $this->request('PATCH', '/messages/' . $messageId, $text, $chatId, $payload);
+    }
+
+    protected function request(string $method, string $uri, string $text, $chatId = null, array $payload = []): array
+    {
         $chatId = $chatId ?: $this->defaultChatId;
 
         if (!$this->token) {
@@ -36,24 +46,11 @@ class MaxBotClient
             throw new \RuntimeException('MAX_CHAT_ID is not configured.');
         }
 
-        $query = [];
-        if (is_numeric($chatId) && (int)$chatId < 0) {
-            $query['chat_id'] = $chatId;
-        } else {
-            $query['user_id'] = $chatId;
-        }
-
-        $bodyPayload = array_merge([
-            'text' => $text,
-        ], $payload);
-
-        // Убираем только null значения на верхнем уровне
-        $bodyPayload = array_filter($bodyPayload, function ($value) {
-            return $value !== null;
-        });
+        $query = $this->resolveRecipientQuery($chatId);
+        $bodyPayload = $this->buildBodyPayload($text, $payload);
 
         try {
-            $response = $this->client->post($this->baseUrl . '/messages', [
+            $response = $this->client->request($method, $this->baseUrl . $uri, [
                 'headers' => [
                     'Authorization' => $this->token,
                     'Accept' => 'application/json',
@@ -72,5 +69,26 @@ class MaxBotClient
         $data = json_decode($body, true);
 
         return is_array($data) ? $data : ['raw' => $body];
+    }
+
+    protected function resolveRecipientQuery($chatId): array
+    {
+        if (is_numeric($chatId) && (int)$chatId < 0) {
+            return ['chat_id' => $chatId];
+        }
+
+        return ['user_id' => $chatId];
+    }
+
+    protected function buildBodyPayload(string $text, array $payload = []): array
+    {
+        $bodyPayload = array_merge([
+            'text' => $text,
+        ], $payload);
+
+        // Убираем только null значения на верхнем уровне
+        return array_filter($bodyPayload, function ($value) {
+            return $value !== null;
+        });
     }
 }
