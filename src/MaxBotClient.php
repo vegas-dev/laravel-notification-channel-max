@@ -31,10 +31,12 @@ class MaxBotClient
 
     public function editMessage(string $messageId, string $text, $chatId = null, array $payload = []): array
     {
-        return $this->request('PATCH', '/messages/' . $messageId, $text, $chatId, $payload);
+        return $this->request('PUT', '/messages', $text, $chatId, $payload, [
+            'message_id' => $messageId,
+        ]);
     }
 
-    protected function request(string $method, string $uri, string $text, $chatId = null, array $payload = []): array
+    protected function request(string $method, string $uri, string $text, $chatId = null, array $payload = [], array $extraQuery = []): array
     {
         $chatId = $chatId ?: $this->defaultChatId;
 
@@ -46,7 +48,7 @@ class MaxBotClient
             throw new \RuntimeException('MAX_CHAT_ID is not configured.');
         }
 
-        $query = $this->resolveRecipientQuery($chatId);
+        $query = array_merge($this->resolveRecipientQuery($chatId), $extraQuery);
         $bodyPayload = $this->buildBodyPayload($text, $payload);
 
         try {
