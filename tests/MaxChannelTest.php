@@ -91,6 +91,79 @@ class MaxChannelTest extends TestCase
         $this->assertEquals(['id' => 'baz'], $response);
     }
 
+    public function test_it_uploads_local_file_attachments_before_sending()
+    {
+        $notifiable = new TestNotifiable();
+        $notification = new TestUploadFileNotification();
+
+        $this->client->shouldReceive('uploadAttachmentFile')
+            ->once()
+            ->with('audio', '/tmp/call.mp3', 'call.mp3', 'audio/mpeg')
+            ->andReturn([
+                'type' => 'audio',
+                'payload' => ['token' => 'token'],
+            ]);
+
+        $this->client->shouldReceive('sendMessage')
+            ->once()
+            ->with('Message with local audio', '12345', [
+                'format' => 'markdown',
+                'attachments' => [
+                    [
+                        'type' => 'audio',
+                        'payload' => ['token' => 'token'],
+                    ],
+                ],
+            ])
+            ->andReturn(['id' => 'local']);
+
+        $response = $this->channel->send($notifiable, $notification);
+
+        $this->assertEquals(['id' => 'local'], $response);
+    }
+
+    public function test_it_sends_message_with_link_when_local_file_upload_fails()
+    {
+        $notifiable = new TestNotifiable();
+        $notification = new TestUploadFileNotification();
+
+        $this->client->shouldReceive('uploadAttachmentFile')
+            ->once()
+            ->with('audio', '/tmp/call.mp3', 'call.mp3', 'audio/mpeg')
+            ->andThrow(CouldNotSendNotification::couldNotCommunicateWithMax(
+                new \RuntimeException('Upload failed')
+            ));
+
+        Log::shouldReceive('warning')->once();
+
+        $this->client->shouldReceive('sendMessage')
+            ->once()
+            ->with('Message with local audio', '12345', [
+                'format' => 'markdown',
+                'attachments' => [
+                    [
+                        'type' => 'inline_keyboard',
+                        'payload' => [
+                            'buttons' => [
+                                [
+                                    [
+                                        'type' => 'link',
+                                        'text' => 'Запись разговора',
+                                        'url' => 'https://example.com/call.mp3',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ])
+            ->andReturn(['id' => 'fallback']);
+
+        $response = $this->channel->send($notifiable, $notification);
+
+        $this->assertEquals(['id' => 'fallback'], $response);
+    }
+
     public function test_it_sends_message_with_link_when_upload_fails()
     {
         $notifiable = new TestNotifiable();
@@ -164,5 +237,14 @@ class TestUploadNotification extends Notification
     {
         return MaxMessage::create('Message with audio')
             ->audio('https://example.com/call.mp3');
+    }
+}
+
+class TestUploadFileNotification extends Notification
+{
+    public function toMax($notifiable)
+    {
+        return MaxMessage::create('Message with local audio')
+            ->audioFile('/tmp/call.mp3', 'call.mp3', 'audio/mpeg', 'https://example.com/call.mp3');
     }
 }

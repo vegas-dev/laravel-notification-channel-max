@@ -88,6 +88,20 @@ class MaxMessageTest extends TestCase
         $this->assertEquals('https://example.com/call.mp3', $message->uploads[0]['url']);
     }
 
+    public function test_it_can_add_audio_file()
+    {
+        $message = MaxMessage::create()
+            ->audioFile('/tmp/call.mp3', 'call.mp3', 'audio/mpeg', 'https://example.com/call.mp3');
+
+        $this->assertTrue($message->hasUploads());
+        $this->assertCount(1, $message->uploads);
+        $this->assertEquals('audio', $message->uploads[0]['type']);
+        $this->assertEquals('/tmp/call.mp3', $message->uploads[0]['path']);
+        $this->assertEquals('call.mp3', $message->uploads[0]['filename']);
+        $this->assertEquals('audio/mpeg', $message->uploads[0]['mime']);
+        $this->assertEquals('https://example.com/call.mp3', $message->uploads[0]['url']);
+    }
+
     public function test_it_can_add_prepared_attachment()
     {
         $message = MaxMessage::create()

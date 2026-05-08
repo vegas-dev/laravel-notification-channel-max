@@ -5,6 +5,11 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Семантического Версионирования](https://semver.org/lang/ru/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-05-08
+### Добавлено
+- Добавлена поддержка загрузки локальных файлов через `MaxMessage::uploadFile()` и `MaxMessage::audioFile()`.
+- Добавлен метод `MaxBotClient::uploadAttachmentFile()` для отправки локальных файлов в Max.
+
 ## [1.0.3] - 2026-05-08
 ### Добавлено
 - Добавлена поддержка загрузки вложений Max через `MaxMessage::upload()` и `MaxMessage::audio()`.

@@ -37,7 +37,16 @@ class MaxChannel
         try {
             foreach ($message->uploads as $upload) {
                 try {
-                    $message->addAttachment($this->client->uploadAttachment($upload['type'], $upload['url']));
+                    if (!empty($upload['path'])) {
+                        $message->addAttachment($this->client->uploadAttachmentFile(
+                            $upload['type'],
+                            $upload['path'],
+                            $upload['filename'] ?? null,
+                            $upload['mime'] ?? null
+                        ));
+                    } else {
+                        $message->addAttachment($this->client->uploadAttachment($upload['type'], $upload['url']));
+                    }
                 } catch (CouldNotSendNotification $e) {
                     $this->addUploadFallback($message, $upload);
 

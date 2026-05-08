@@ -123,6 +123,16 @@ class MaxBotClient
         ];
     }
 
+    public function uploadAttachmentFile(string $type, string $path, ?string $filename = null, ?string $mime = null): array
+    {
+        $payload = $this->uploadMediaFile($type, $path, $filename, $mime);
+
+        return [
+            'type' => $type,
+            'payload' => $payload,
+        ];
+    }
+
     protected function uploadMedia(string $type, string $sourceUrl): array
     {
         if (!in_array($type, ['image', 'video', 'audio', 'file'], true)) {
@@ -141,6 +151,31 @@ class MaxBotClient
                 unlink($localFile['path']);
             }
         }
+
+        return $this->resolveAttachmentPayload($type, $upload, $uploadResult);
+    }
+
+    protected function uploadMediaFile(string $type, string $path, ?string $filename = null, ?string $mime = null): array
+    {
+        if (!in_array($type, ['image', 'video', 'audio', 'file'], true)) {
+            throw CouldNotSendNotification::couldNotCommunicateWithMax(
+                new \InvalidArgumentException("Unsupported Max upload type: {$type}.")
+            );
+        }
+
+        if (!is_file($path) || filesize($path) === 0) {
+            throw CouldNotSendNotification::couldNotCommunicateWithMax(
+                new \RuntimeException('Max attachment file is missing or empty.')
+            );
+        }
+
+        $upload = $this->createUpload($type);
+        $uploadResult = $this->uploadFileToMax(
+            $upload['url'],
+            $path,
+            $filename ?: basename($path),
+            $mime ?: 'application/octet-stream'
+        );
 
         return $this->resolveAttachmentPayload($type, $upload, $uploadResult);
     }

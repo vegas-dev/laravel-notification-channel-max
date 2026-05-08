@@ -127,6 +127,11 @@ class MaxMessage
         return $this->upload('audio', $url);
     }
 
+    public function audioFile(string $path, ?string $filename = null, ?string $mime = null, ?string $url = null): self
+    {
+        return $this->uploadFile('audio', $path, $filename, $mime, $url);
+    }
+
     public function upload(string $type, ?string $url): self
     {
         if (empty($url)) {
@@ -135,6 +140,23 @@ class MaxMessage
 
         $this->uploads[] = [
             'type' => $type,
+            'url' => $url,
+        ];
+
+        return $this;
+    }
+
+    public function uploadFile(string $type, string $path, ?string $filename = null, ?string $mime = null, ?string $url = null): self
+    {
+        if (empty($path)) {
+            return $this;
+        }
+
+        $this->uploads[] = [
+            'type' => $type,
+            'path' => $path,
+            'filename' => $filename,
+            'mime' => $mime,
             'url' => $url,
         ];
 
