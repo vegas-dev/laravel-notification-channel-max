@@ -77,6 +77,30 @@ class MaxMessageTest extends TestCase
         $this->assertEquals('http://my-app.ru/link', $message->payload['link_url']);
     }
 
+    public function test_it_can_add_audio()
+    {
+        $message = MaxMessage::create()
+            ->audio('https://example.com/call.mp3');
+
+        $this->assertTrue($message->hasUploads());
+        $this->assertCount(1, $message->uploads);
+        $this->assertEquals('audio', $message->uploads[0]['type']);
+        $this->assertEquals('https://example.com/call.mp3', $message->uploads[0]['url']);
+    }
+
+    public function test_it_can_add_prepared_attachment()
+    {
+        $message = MaxMessage::create()
+            ->addAttachment([
+                'type' => 'audio',
+                'payload' => ['token' => 'token'],
+            ]);
+
+        $this->assertCount(1, $message->payload['attachments']);
+        $this->assertEquals('audio', $message->payload['attachments'][0]['type']);
+        $this->assertEquals('token', $message->payload['attachments'][0]['payload']['token']);
+    }
+
     public function test_it_converts_to_array()
     {
         $message = MaxMessage::create('Hello')

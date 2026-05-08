@@ -5,6 +5,15 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Семантического Версионирования](https://semver.org/lang/ru/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-05-08
+### Добавлено
+- Добавлена поддержка загрузки вложений Max через `MaxMessage::upload()` и `MaxMessage::audio()`.
+- Добавлена отправка подготовленных вложений через `MaxMessage::addAttachment()`.
+
+### Изменено
+- `MaxChannel` загружает вложения перед отправкой сообщения и добавляет ссылку на аудио при ошибке загрузки.
+- `MaxBotClient` повторяет отправку сообщения, если API Max возвращает `attachment.not.ready`.
+
 ## [1.0.2] - 2026-04-15
 ### Изменено
 - `MaxBotClient::editMessage` переведен на `PUT /messages` с передачей `message_id` в query-параметрах.

@@ -35,6 +35,21 @@ class MaxChannel
         $chatId = $message->chatId ?: $notifiable->routeNotificationFor('max', $notification);
 
         try {
+            foreach ($message->uploads as $upload) {
+                try {
+                    $message->addAttachment($this->client->uploadAttachment($upload['type'], $upload['url']));
+                } catch (CouldNotSendNotification $e) {
+                    $this->addUploadFallback($message, $upload);
+
+                    Log::warning('Max attachment upload error: ' . $e->getMessage(), [
+                        'notification' => get_class($notification),
+                        'notifiable' => get_class($notifiable),
+                        'upload' => $upload,
+                        'exception' => $e,
+                    ]);
+                }
+            }
+
             return $this->client->sendMessage(
                 $message->content,
                 $chatId,
@@ -55,6 +70,13 @@ class MaxChannel
             ]);
 
             throw $e;
+        }
+    }
+
+    protected function addUploadFallback(MaxMessage $message, array $upload): void
+    {
+        if (($upload['type'] ?? null) === 'audio' && !empty($upload['url'])) {
+            $message->button('Запись разговора', $upload['url']);
         }
     }
 }

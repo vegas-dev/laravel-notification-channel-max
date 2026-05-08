@@ -6,6 +6,7 @@ class MaxMessage
 {
     public $content;
     public $chatId;
+    public $uploads = [];
     public $payload = [
         'format' => 'markdown',
     ];
@@ -118,6 +119,41 @@ class MaxMessage
     public function attachments(array $value): self
     {
         $this->payload['attachments'] = $value;
+        return $this;
+    }
+
+    public function audio(?string $url): self
+    {
+        return $this->upload('audio', $url);
+    }
+
+    public function upload(string $type, ?string $url): self
+    {
+        if (empty($url)) {
+            return $this;
+        }
+
+        $this->uploads[] = [
+            'type' => $type,
+            'url' => $url,
+        ];
+
+        return $this;
+    }
+
+    public function hasUploads(): bool
+    {
+        return !empty($this->uploads);
+    }
+
+    public function addAttachment(array $attachment): self
+    {
+        if (!isset($this->payload['attachments'])) {
+            $this->payload['attachments'] = [];
+        }
+
+        $this->payload['attachments'][] = $attachment;
+
         return $this;
     }
 
