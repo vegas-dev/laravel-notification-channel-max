@@ -16,7 +16,7 @@ class MaxBotClient
     public function __construct(string $token, ?string $baseUrl = null, ?string $defaultChatId = null)
     {
         $this->token = $token;
-        $this->baseUrl = rtrim($baseUrl ?: 'https://platform-api.max.ru', '/');
+        $this->baseUrl = rtrim($baseUrl ?: 'https://platform-api2.max.ru', '/');
         $this->defaultChatId = $defaultChatId;
         $this->client = new Client([
             'timeout' => 15,

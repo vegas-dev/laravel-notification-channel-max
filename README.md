@@ -4,7 +4,7 @@
 [![Всего скачиваний](https://img.shields.io/packagist/dt/vegas/laravel-notification-channel-max.svg?style=flat-square)](https://packagist.org/packages/vegas/laravel-notification-channel-max)
 [![Лицензия](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
 
-Этот пакет позволяет легко отправлять уведомления через [Max](https://platform-api.max.ru) в Laravel.
+Этот пакет позволяет легко отправлять уведомления через [Max](https://platform-api2.max.ru) в Laravel.
 
 ## Содержание
 
