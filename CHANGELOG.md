@@ -5,6 +5,10 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/),
 и этот проект придерживается [Семантического Версионирования](https://semver.org/lang/ru/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-11-13
+### Добавлено
+- Метод `MaxMessage::withoutLinkPreview()` отключает автоматическое превью ссылок в новых сообщениях MAX.
+
 ## [1.0.4] - 2026-05-08
 ### Добавлено
 - Добавлена поддержка загрузки локальных файлов через `MaxMessage::uploadFile()` и `MaxMessage::audioFile()`.

@@ -39,6 +39,12 @@ class MaxMessage
         return $this;
     }
 
+    public function withoutLinkPreview(): self
+    {
+        $this->payload['disable_link_preview'] = true;
+        return $this;
+    }
+
     public function format(string $value): self
     {
         $this->payload['format'] = $value;

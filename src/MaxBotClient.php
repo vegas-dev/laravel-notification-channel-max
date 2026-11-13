@@ -48,6 +48,11 @@ class MaxBotClient
             throw new \RuntimeException('MAX_CHAT_ID is not configured.');
         }
 
+        if ($method === 'POST' && $uri === '/messages' && ($payload['disable_link_preview'] ?? false) === true) {
+            $extraQuery['disable_link_preview'] = 'true';
+        }
+
+        unset($payload['disable_link_preview']);
         $query = array_merge($this->resolveRecipientQuery($chatId), $extraQuery);
         $bodyPayload = $this->buildBodyPayload($text, $payload);
 
