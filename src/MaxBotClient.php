@@ -3,14 +3,17 @@
 namespace Vegas\MaxNotificationChannel;
 
 use GuzzleHttp\Client;
-use Vegas\MaxNotificationChannel\Exceptions\CouldNotSendNotification;
 use GuzzleHttp\Exception\ClientException;
+use Vegas\MaxNotificationChannel\Exceptions\CouldNotSendNotification;
 
 class MaxBotClient
 {
     protected $client;
+
     protected $baseUrl;
+
     protected $token;
+
     protected $defaultChatId;
 
     public function __construct(string $token, ?string $baseUrl = null, ?string $defaultChatId = null)
@@ -40,16 +43,16 @@ class MaxBotClient
     {
         $chatId = $chatId ?: $this->defaultChatId;
 
-        if (!$this->token) {
+        if (! $this->token) {
             throw new \RuntimeException('MAX_BOT_TOKEN is not configured.');
         }
 
-        if (!$chatId) {
+        if (! $chatId) {
             throw new \RuntimeException('MAX_CHAT_ID is not configured.');
         }
 
-        if ($method === 'POST' && $uri === '/messages' && ($payload['disable_link_preview'] ?? false) === true) {
-            $extraQuery['disable_link_preview'] = 'true';
+        if ($method === 'POST' && $uri === '/messages' && is_bool($payload['disable_link_preview'] ?? null)) {
+            $extraQuery['disable_link_preview'] = $payload['disable_link_preview'] ? 'true' : 'false';
         }
 
         unset($payload['disable_link_preview']);
@@ -60,7 +63,7 @@ class MaxBotClient
 
         while (true) {
             try {
-                $response = $this->client->request($method, $this->baseUrl . $uri, [
+                $response = $this->client->request($method, $this->baseUrl.$uri, [
                     'headers' => [
                         'Authorization' => $this->token,
                         'Accept' => 'application/json',
@@ -75,6 +78,7 @@ class MaxBotClient
                 if ($attempt < 3 && $this->isAttachmentNotReady($exception)) {
                     $attempt++;
                     sleep($attempt * 2);
+
                     continue;
                 }
 
@@ -99,7 +103,7 @@ class MaxBotClient
 
     protected function resolveRecipientQuery($chatId): array
     {
-        if (is_numeric($chatId) && (int)$chatId < 0) {
+        if (is_numeric($chatId) && (int) $chatId < 0) {
             return ['chat_id' => $chatId];
         }
 
@@ -140,7 +144,7 @@ class MaxBotClient
 
     protected function uploadMedia(string $type, string $sourceUrl): array
     {
-        if (!in_array($type, ['image', 'video', 'audio', 'file'], true)) {
+        if (! in_array($type, ['image', 'video', 'audio', 'file'], true)) {
             throw CouldNotSendNotification::couldNotCommunicateWithMax(
                 new \InvalidArgumentException("Unsupported Max upload type: {$type}.")
             );
@@ -162,13 +166,13 @@ class MaxBotClient
 
     protected function uploadMediaFile(string $type, string $path, ?string $filename = null, ?string $mime = null): array
     {
-        if (!in_array($type, ['image', 'video', 'audio', 'file'], true)) {
+        if (! in_array($type, ['image', 'video', 'audio', 'file'], true)) {
             throw CouldNotSendNotification::couldNotCommunicateWithMax(
                 new \InvalidArgumentException("Unsupported Max upload type: {$type}.")
             );
         }
 
-        if (!is_file($path) || filesize($path) === 0) {
+        if (! is_file($path) || filesize($path) === 0) {
             throw CouldNotSendNotification::couldNotCommunicateWithMax(
                 new \RuntimeException('Max attachment file is missing or empty.')
             );
@@ -188,7 +192,7 @@ class MaxBotClient
     protected function createUpload(string $type): array
     {
         try {
-            $response = $this->client->request('POST', $this->baseUrl . '/uploads', [
+            $response = $this->client->request('POST', $this->baseUrl.'/uploads', [
                 'headers' => [
                     'Authorization' => $this->token,
                     'Accept' => 'application/json',
@@ -205,7 +209,7 @@ class MaxBotClient
 
         $data = json_decode((string) $response->getBody(), true);
 
-        if (!is_array($data) || empty($data['url'])) {
+        if (! is_array($data) || empty($data['url'])) {
             throw CouldNotSendNotification::couldNotCommunicateWithMax(
                 new \RuntimeException('Max API did not return an upload URL.')
             );
@@ -236,7 +240,7 @@ class MaxBotClient
             throw CouldNotSendNotification::couldNotCommunicateWithMax($exception);
         }
 
-        if (!is_file($path) || filesize($path) === 0) {
+        if (! is_file($path) || filesize($path) === 0) {
             if (is_file($path)) {
                 unlink($path);
             }
@@ -259,7 +263,7 @@ class MaxBotClient
 
         try {
             $stream = fopen($path, 'rb');
-            if (!$stream) {
+            if (! $stream) {
                 throw new \RuntimeException('Could not open Max attachment file.');
             }
 

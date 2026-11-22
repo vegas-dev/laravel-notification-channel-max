@@ -5,8 +5,11 @@ namespace Vegas\MaxNotificationChannel\Messages;
 class MaxMessage
 {
     public $content;
+
     public $chatId;
+
     public $uploads = [];
+
     public $payload = [
         'format' => 'markdown',
     ];
@@ -24,30 +27,44 @@ class MaxMessage
     public function content(string $content): self
     {
         $this->content = $content;
+
         return $this;
     }
 
     public function to(string $chatId): self
     {
         $this->chatId = $chatId;
+
         return $this;
     }
 
     public function notify(bool $value = true): self
     {
         $this->payload['notify'] = $value;
+
+        return $this;
+    }
+
+    public function linkPreview(?bool $enabled): self
+    {
+        if ($enabled === null) {
+            unset($this->payload['disable_link_preview']);
+        } else {
+            $this->payload['disable_link_preview'] = ! $enabled;
+        }
+
         return $this;
     }
 
     public function withoutLinkPreview(): self
     {
-        $this->payload['disable_link_preview'] = true;
-        return $this;
+        return $this->linkPreview(false);
     }
 
     public function format(string $value): self
     {
         $this->payload['format'] = $value;
+
         return $this;
     }
 
@@ -59,7 +76,7 @@ class MaxMessage
 
         if (strpos($value, 'http') !== 0) {
             $appUrl = rtrim(config('app.url'), '/');
-            $value = $appUrl . '/' . ltrim($value, '/');
+            $value = $appUrl.'/'.ltrim($value, '/');
         }
 
         // Если домен .local, заменим его на .ru (для локальной разработки)
@@ -68,6 +85,7 @@ class MaxMessage
         }
 
         $this->payload['link_url'] = $value;
+
         return $this;
     }
 
@@ -79,7 +97,7 @@ class MaxMessage
 
         if (strpos($url, 'http') !== 0) {
             $appUrl = rtrim(config('app.url'), '/');
-            $url = $appUrl . '/' . ltrim($url, '/');
+            $url = $appUrl.'/'.ltrim($url, '/');
         }
 
         // Если домен .local, заменим его на .ru (для локальной разработки)
@@ -87,7 +105,7 @@ class MaxMessage
             $url = str_replace('.local', '.ru', $url);
         }
 
-        if (!isset($this->payload['attachments'])) {
+        if (! isset($this->payload['attachments'])) {
             $this->payload['attachments'] = [];
         }
 
@@ -99,17 +117,17 @@ class MaxMessage
             }
         }
 
-        if (!$inlineKeyboard) {
+        if (! $inlineKeyboard) {
             $this->payload['attachments'][] = [
                 'type' => 'inline_keyboard',
                 'payload' => [
-                    'buttons' => []
-                ]
+                    'buttons' => [],
+                ],
             ];
             $inlineKeyboard = &$this->payload['attachments'][count($this->payload['attachments']) - 1];
         }
 
-        if (!isset($inlineKeyboard['payload']['buttons'][$row])) {
+        if (! isset($inlineKeyboard['payload']['buttons'][$row])) {
             $inlineKeyboard['payload']['buttons'][$row] = [];
         }
 
@@ -125,6 +143,7 @@ class MaxMessage
     public function attachments(array $value): self
     {
         $this->payload['attachments'] = $value;
+
         return $this;
     }
 
@@ -171,12 +190,12 @@ class MaxMessage
 
     public function hasUploads(): bool
     {
-        return !empty($this->uploads);
+        return ! empty($this->uploads);
     }
 
     public function addAttachment(array $attachment): self
     {
-        if (!isset($this->payload['attachments'])) {
+        if (! isset($this->payload['attachments'])) {
             $this->payload['attachments'] = [];
         }
 

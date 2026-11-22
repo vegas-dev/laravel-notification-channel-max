@@ -9,13 +9,13 @@ class MaxMessageTest extends TestCase
 {
     public function test_it_has_markdown_format_by_default()
     {
-        $message = new MaxMessage();
+        $message = new MaxMessage;
         $this->assertEquals('markdown', $message->payload['format']);
     }
 
     public function test_it_can_be_instantiated()
     {
-        $message = new MaxMessage();
+        $message = new MaxMessage;
         $this->assertInstanceOf(MaxMessage::class, $message);
     }
 
@@ -125,5 +125,15 @@ class MaxMessageTest extends TestCase
 
         $this->assertEquals('Hello', $array['text']);
         $this->assertEquals(false, $array['notify']);
+    }
+
+    public function test_it_can_enable_disable_and_reset_link_previews(): void
+    {
+        $message = MaxMessage::create('https://example.com/page');
+
+        $this->assertFalse($message->linkPreview(true)->toArray()['disable_link_preview']);
+        $this->assertTrue($message->linkPreview(false)->toArray()['disable_link_preview']);
+        $this->assertArrayNotHasKey('disable_link_preview', $message->linkPreview(null)->toArray());
+        $this->assertTrue($message->withoutLinkPreview()->toArray()['disable_link_preview']);
     }
 }

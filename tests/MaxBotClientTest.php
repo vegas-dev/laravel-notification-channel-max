@@ -55,12 +55,27 @@ class MaxBotClientTest extends TestCase
 
     private function client(MockHandler $http): MaxBotClient
     {
-        return new class($http) extends MaxBotClient {
+        return new class($http) extends MaxBotClient
+        {
             public function __construct(MockHandler $http)
             {
                 parent::__construct('test-token', 'https://max-api.example.com');
                 $this->client = new Client(['handler' => $http]);
             }
         };
+    }
+
+    public function test_it_can_explicitly_enable_previews_after_disabling_them(): void
+    {
+        $http = new MockHandler([new Response(200, [], '{}')]);
+        $client = $this->client($http);
+        $message = MaxMessage::create('https://example.com/page')->withoutLinkPreview()->linkPreview(true);
+
+        $client->sendMessage($message->content, '-123', $message->payload);
+
+        $request = $http->getLastRequest();
+        parse_str($request->getUri()->getQuery(), $query);
+        $this->assertSame(['chat_id' => '-123', 'disable_link_preview' => 'false'], $query);
+        $this->assertSame(['text' => 'https://example.com/page', 'format' => 'markdown'], json_decode((string) $request->getBody(), true));
     }
 }

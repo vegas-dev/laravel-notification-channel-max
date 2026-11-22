@@ -83,6 +83,7 @@ public function routeNotificationForMax()
 - `button(string $text, string $url, int $row = 0)`: Добавить кнопку со ссылкой.
 - `link(string)`: Добавить URL-ссылку к сообщению (в API это `link_url`).
 - `notify(bool)`: Установить флаг уведомления (звуковой сигнал/пуш).
+- `linkPreview(true/false/null)`: Разрешить превью, отключить их или вернуть стандартное поведение MAX. Например: `MaxMessage::create($text)->linkPreview(false)`. Параметр применяется при отправке нового сообщения, а не при редактировании.
 - `withoutLinkPreview()` отключает автоматическое превью ссылок при отправке нового сообщения. Ссылки в тексте остаются кликабельными. Без вызова метода действуют настройки MAX по умолчанию.
 - `format(string)`: Установить формат сообщения (`markdown`, `html` или `plain`).
 
